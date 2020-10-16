@@ -1,0 +1,22 @@
+syntax = "proto3";
+package dummyApi;
+option go_package = "github.com/takasho-tutrial/dummy-api;dummy_api";
+
+service DummyApiService {
+  rpc GetData(DataType) returns (SensingData);
+  rpc GetStatsData(stream DataType) returns (StatsData);
+  rpc GetSeqData(DataType) returns (stream SensingData);
+  rpc GetSeqStatsData(stream DataType) returns (stream StatsData);
+}
+
+message DataType { string sensor_name = 1; }
+
+message SensingData {
+  string sensor_name = 1;
+  repeated int32 sensor_values = 2;
+}
+
+message StatsData {
+  string sensor_name = 1;
+  float stats_info = 2;
+}

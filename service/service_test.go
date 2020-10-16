@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	pb "github.com/takasho-tutrial/dummy-api/grpc/dummy-api.pb.go"
-	"go.uber.org/zap"
 	"testing"
+
+	pb "github.com/takasho-tutorial/dummy-api/grpc"
+	"go.uber.org/zap"
 )
 
 func TestNewService(t *testing.T) {
@@ -17,32 +18,62 @@ func TestNewService(t *testing.T) {
 	if err != nil {
 		t.Errorf("Service didn't work %v", err)
 	}
+
+	if _, ok := s.(pb.DummyApiServiceServer); ok == false {
+		t.Errorf("Service didn't support DummyApiServer")
+	}
 }
 
 func GetData(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 	s, _ := NewService(logger)
 
-	arg := pb.DataType{SensorName: "camera-module"}
-	exp := []int32{0, 1, 0}
-	ret, err := s.GetData(arg)
+	arg := &pb.DataType{SensorName: "camera-module"}
+	exp := &pb.SensingData{SensorName: "camera-module", SensorValues: []int32{0, 1, 0}}
+	ret, err := s.GetData(context.Background(), arg)
 
 	if err != nil {
 		t.Errorf("Service didn't work %v", err)
 	}
 
-	if ret.SensorName != "camera-module" {
+	if ret.SensorName != exp.SensorName {
 		t.Errorf("GetData() exptected %v, got %v", "camera-module", ret.SensorName)
 	}
 
 	for idx, val := range ret.SensorValues {
-		if exp[idx] != val {
-			t.Errorf("GetData() exptected %v, got %v", exp[idx], val)
+		if exp.SensorValues[idx] != val {
+			t.Errorf("GetData() exptected %v, got %v", exp.SensorValues[idx], val)
 		}
 	}
 }
 
 func GetStatsData(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	s, _ := NewService(logger)
+
+	arg := []*pb.DataType{
+		{SensorName: "camera-module"},
+		{SensorName: "voltage-module"},
+		{SensorName: "spectrum-module"},
+	}
+	exp := &pb.StatsData{
+		SensorName: "ML-module",
+		StatsInfo:  0.8,
+	}
+
+	err := s.GetStatsData(context.Background())
+	for _, val := range arg {
+		if err := stream.Send(val); err != nil {
+			t.Errorf("Error occured @ Sending data %v", err)
+		}
+	}
+	reply, err := stream.CloseAndRecv()
+	if err != nil {
+		t.Errorf("Error occured @ Recv data")
+	}
+	if (reply.SensorName != exp.SensorName) || (reply.StatsInfo != exp.StatsInfo) {
+		t.Errorf("GetStatsData expects %v, but recieve %v", exp, reply)
+	}
 }
 
 func GetSeqData(t *testing.T) {

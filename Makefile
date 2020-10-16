@@ -5,7 +5,7 @@
 build-protobuf:
 	@protoc -I ./grpc \
 		--go_out=plugins=grpc:./grpc\
-		--go_opt=module=github.com/takasho-tutrial/dummy-api\
+		--go_opt=module=github.com/takasho-tutorial/dummy-api\
 		dummy-api.proto
 
 .PHONY: build-html
@@ -19,4 +19,4 @@ format-protobuf:
 
 .PHONY: clean
 clean:
-	@rm -f ./grpc/dummy-api.pd.go ./grpc/index.html
+	@rm -f ./grpc/dummy-api.pb.go ./grpc/index.html

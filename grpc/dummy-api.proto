@@ -1,6 +1,6 @@
 syntax = "proto3";
 package dummyApi;
-option go_package = "github.com/takasho-tutrial/dummy-api;dummy_api";
+option go_package = "github.com/takasho-tutorial/dummy-api;dummy_api";
 
 service DummyApiService {
   rpc GetData(DataType) returns (SensingData);
